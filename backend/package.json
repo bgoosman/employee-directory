@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node -r esm src/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "esm": "^3.2.25",
+    "graphql-yoga": "^1.18.3",
+    "postgres": "^1.0.2"
+  }
+}
