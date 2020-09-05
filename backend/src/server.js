@@ -1,10 +1,18 @@
 import { GraphQLServer } from "graphql-yoga";
 import { makeDatabase } from "./db/make-database";
 import { getEmployees } from "./db/employee-crud";
+import postgres from "postgres";
 
 const typeDefs = `
   type Query {
-    employees: [Employee!]!
+    employees(filter: FilterInput): [Employee!]!
+  }
+
+  input FilterInput {
+    name: String
+    title: String
+    email: String
+    department: String
   }
 
   type Employee {
@@ -19,9 +27,11 @@ const typeDefs = `
   }
 `;
 
+const sql = postgres();
+
 const resolvers = {
   Query: {
-    employees: () => getEmployees(),
+    employees: (_, { filter }) => getEmployees(sql, filter),
   },
 };
 

@@ -249,7 +249,51 @@
    And, the stack now stops with only one Ctrl-C. :)
 2. Need to get employees. [GitHub](https://github.com/bgoosman/employee-directory/commit/50224a62efb1a97ee939f8eab7d0236774cfdd4d)
 3. Let's figure out how to [debug Node](https://github.com/microsoft/vscode-recipes/tree/master/nodemon) in a [docker container](https://github.com/microsoft/vscode-recipes/tree/master/Docker-TypeScript) first. Discovered our picture_thumbnail was null. Oops. [GitHub](https://github.com/bgoosman/employee-directory/commit/245a244f9506b70f60d8bf0466f5b542a0e88314)
+
    ![](missing_picture_thumbnail.png)
+
    ![But it's present. Huh?](picture_thumbnail_present.png)
-   Ah, I mispelled the mapping code: `picture_thumbail: user["picture"]["thumbnail"],`
-4. Need to filter employees by name, title, email, or department.
+
+   Ah, I mispelled the mapping code: `picture_thumbail: user["picture"]["thumbnail"],` [GitHub](https://github.com/bgoosman/employee-directory/commit/1f40598a532d74489d08a0ecc2b3316b36cef061)
+
+   Now we can query for employees!
+
+   ```
+   query {
+     employees {
+       id
+       name
+       email
+       dob
+       phone
+       picture_thumbnail
+       department
+       title
+     }
+   }
+   Response:
+   {
+    "data": {
+      "employees": [
+        {
+          "id": "eaf98d6b-7b59-406f-8fe9-264ab60d61e9",
+          "name": "Tjitse Slots",
+          "email": "tjitse.slots@example.com",
+          "dob": "1965-12-22T15:52:39.108Z",
+          "phone": "(730)-840-9679",
+          "picture_thumbnail": "https://randomuser.me/api/portraits/thumb/men/66.jpg",
+          "department": "Gingko",
+          "title": "Real Estate Agent"
+        },
+        ...
+   ```
+
+4. Need to filter employees by name, email, title, or department. Add a test framework at the same time. Sources:
+
+- [Mutations and Input Types](https://graphql.org/graphql-js/mutations-and-input-types/)
+- [How to pass variables in GraphiQL](https://atheros.ai/blog/graphql-quick-tip-how-to-pass-variables-in-graphiql)
+- [mochajs, a test framework](https://mochajs.org/)
+- [If you want test spies: sinonjs](https://sinonjs.org/#get-started)
+- [The Ultimate Unit Testing Cheat-sheet for Mocha, Chai, and Sinon](https://gist.github.com/yoavniran/1e3b0162e1545055429e#sinon)
+- [If you want expect() asserts: Chai](https://www.chaijs.com/)
+- [How to export multiple functions the ES6 way](https://stackoverflow.com/questions/38296667/getting-unexpected-token-export)
