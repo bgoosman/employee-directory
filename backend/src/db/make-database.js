@@ -35,7 +35,7 @@ function userToEmployee(user) {
     email: user["email"],
     dob: user["dob"]["date"],
     phone: user["phone"],
-    picture_thumbail: user["picture"]["thumbnail"],
+    picture_thumbnail: user["picture"]["thumbnail"],
     department: randomDepartment,
     title: randomTitle,
   };

@@ -248,5 +248,8 @@
    ```
    And, the stack now stops with only one Ctrl-C. :)
 2. Need to get employees. [GitHub](https://github.com/bgoosman/employee-directory/commit/50224a62efb1a97ee939f8eab7d0236774cfdd4d)
-3. Need to filter employees by name, title, email, or department. Let's figure out how to [debug Node](https://github.com/microsoft/vscode-recipes/tree/master/nodemon) in a [docker container](https://github.com/microsoft/vscode-recipes/tree/master/Docker-TypeScript) first. Discovered our picture_thumbnail was null. Oops.
+3. Let's figure out how to [debug Node](https://github.com/microsoft/vscode-recipes/tree/master/nodemon) in a [docker container](https://github.com/microsoft/vscode-recipes/tree/master/Docker-TypeScript) first. Discovered our picture_thumbnail was null. Oops. [GitHub](https://github.com/bgoosman/employee-directory/commit/245a244f9506b70f60d8bf0466f5b542a0e88314)
    ![](missing_picture_thumbnail.png)
+   ![But it's present. Huh?](picture_thumbnail_present.png)
+   Ah, I mispelled the mapping code: `picture_thumbail: user["picture"]["thumbnail"],`
+4. Need to filter employees by name, title, email, or department.
