@@ -25,7 +25,7 @@
 
     Requirements
     * List employees
-    * Filter employees by name, department, title
+    * Filter employees by name, email, department, title
     * Add employee
     * Update employee
     * Delete employees
@@ -246,4 +246,7 @@
    backend_1  | [nodemon] starting `node -r esm src/server.js`
    backend_1  | Server is running on localhost:4000
    ```
-2. Need to get employees.
+   And, the stack now stops with only one Ctrl-C. :)
+2. Need to get employees. [GitHub](https://github.com/bgoosman/employee-directory/commit/50224a62efb1a97ee939f8eab7d0236774cfdd4d)
+3. Need to filter employees by name, title, email, or department. Let's figure out how to [debug Node](https://github.com/microsoft/vscode-recipes/tree/master/nodemon) in a [docker container](https://github.com/microsoft/vscode-recipes/tree/master/Docker-TypeScript) first. Discovered our picture_thumbnail was null. Oops.
+   ![](missing_picture_thumbnail.png)
