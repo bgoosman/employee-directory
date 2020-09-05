@@ -1,10 +1,13 @@
 import sinon from "sinon";
-import { expect } from "chai";
+import chai, { expect } from "chai";
+import chaiAsPromised from "chai-as-promised";
+chai.use(chaiAsPromised);
 
 import {
   getStringFilter,
   getEmployees,
   createEmployee,
+  updateEmployee,
 } from "../../src/db/employee-crud.js";
 
 describe("getStringFilter", () => {
@@ -58,18 +61,64 @@ describe("createEmployee", () => {
     };
   });
 
-  it("returns an employee with a unique id", () => {
+  it("returns an employee with a unique id", async () => {
     const sql = sinon.spy();
-    const output = createEmployee(sql, input);
+    const output = await createEmployee(sql, input);
     expect(output["id"]).to.not.be.null;
   });
 
-  it("uses all the input args", () => {
+  it("uses all the input args", async () => {
     const sql = sinon.spy();
-    createEmployee(sql, input);
+    await createEmployee(sql, input);
     const queryInsertArgs = sql.args[0][0];
     Object.keys(input).forEach((key) => {
       expect(queryInsertArgs[key]).to.equal(input[key]);
     });
+  });
+});
+
+describe("updateEmployee", () => {
+  let input;
+
+  beforeEach(() => {
+    input = {
+      id: "ID",
+      name: "NAME",
+      email: "EMAIL",
+      dob: "DOB",
+      phone: "PHONE",
+      picture_thumbnail: "PICTURE_THUMBNAIL",
+      department: "DEPARTMENT",
+      title: "TITLE",
+    };
+  });
+
+  it("returns the employee", async () => {
+    const sql = sinon.fake.returns({
+      count: 1,
+    });
+    const output = await updateEmployee(sql, input);
+    expect(output).to.equal(input);
+  });
+
+  it("updates all the input args except the primary key", async () => {
+    const sql = sinon.fake.returns({
+      count: 1,
+    });
+    await updateEmployee(sql, input);
+    const queryUpdateArgs = sql.args[0][0];
+    expect(queryUpdateArgs).to.not.have.keys("id");
+    Object.keys(input).forEach((key) => {
+      if (key !== "id") {
+        expect(queryUpdateArgs[key]).to.equal(input[key]);
+      }
+    });
+  });
+
+  it("throws an error if no update occurred", async () => {
+    const sql = sinon.fake.returns({
+      count: 0,
+    });
+    await expect(updateEmployee(sql, input)).to.be.rejectedWith(Error);
   });
 });

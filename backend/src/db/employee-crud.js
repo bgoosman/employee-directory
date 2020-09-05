@@ -1,5 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 
+const primaryKey = "id";
+const updateableAttributes = [
+  "name",
+  "email",
+  "dob",
+  "phone",
+  "picture_thumbnail",
+  "department",
+  "title",
+];
+
 function getStringFilter(fieldName, searchPrefix) {
   return searchPrefix ? `and ${fieldName} like '${searchPrefix}%'` : "";
 }
@@ -9,7 +20,7 @@ async function getEmployees(sql, filter) {
   const andEmail = getStringFilter("email", filter["email"]);
   const andTitle = getStringFilter("title", filter["title"]);
   const andDepartment = getStringFilter("department", filter["department"]);
-  // in production, I would find a different library that supported
+  // TODO: in production, I would find a different library that supported
   // dynamic where clauses and template literals, but at this point
   // it didn't feel worth switching libraries
   const employees = await sql.unsafe(`
@@ -19,22 +30,26 @@ async function getEmployees(sql, filter) {
   return employees;
 }
 
-async function createEmployee(sql, employee) {
-  employee["id"] = uuidv4();
+async function createEmployee(sql, input) {
+  input["id"] = uuidv4();
   await sql`
-    insert into employees ${sql(
-      employee,
-      "id",
-      "name",
-      "email",
-      "dob",
-      "phone",
-      "picture_thumbnail",
-      "department",
-      "title"
-    )}
+    insert into employees ${sql(input, primaryKey, ...updateableAttributes)}
   `;
-  return employee;
+  return input;
 }
 
-export { getStringFilter, getEmployees, createEmployee };
+async function updateEmployee(sql, input) {
+  // TODO: allow partial updates?
+  const result = await sql`
+    update employees set ${sql(
+      input,
+      ...updateableAttributes
+    )} where ${primaryKey} = ${input[primaryKey]}
+  `;
+  if (!result.count) {
+    throw new Error("Employee does not exist.");
+  }
+  return input;
+}
+
+export { getStringFilter, getEmployees, createEmployee, updateEmployee };

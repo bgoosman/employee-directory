@@ -304,4 +304,5 @@
 
 ## 2020-09-05
 
-6. Adding a mutation to create an employee next.
+6. Adding a mutation to create an employee next. [GitHub](https://github.com/bgoosman/employee-directory/commit/46e632c3a9dc8ce3c0edaa173c842a5a7d2bd688)
+7. Need to update an employee.
