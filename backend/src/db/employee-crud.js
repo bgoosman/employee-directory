@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 function getStringFilter(fieldName, searchPrefix) {
   return searchPrefix ? `and ${fieldName} like '${searchPrefix}%'` : "";
 }
@@ -17,4 +19,22 @@ async function getEmployees(sql, filter) {
   return employees;
 }
 
-export { getStringFilter, getEmployees };
+async function createEmployee(sql, employee) {
+  employee["id"] = uuidv4();
+  await sql`
+    insert into employees ${sql(
+      employee,
+      "id",
+      "name",
+      "email",
+      "dob",
+      "phone",
+      "picture_thumbnail",
+      "department",
+      "title"
+    )}
+  `;
+  return employee;
+}
+
+export { getStringFilter, getEmployees, createEmployee };

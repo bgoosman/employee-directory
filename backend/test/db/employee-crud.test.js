@@ -1,7 +1,11 @@
 import sinon from "sinon";
 import { expect } from "chai";
 
-import { getStringFilter, getEmployees } from "../../src/db/employee-crud.js";
+import {
+  getStringFilter,
+  getEmployees,
+  createEmployee,
+} from "../../src/db/employee-crud.js";
 
 describe("getStringFilter", () => {
   it("should return a valid prefix search sql", () => {
@@ -36,5 +40,36 @@ describe("getEmployees", () => {
     expect(query).to.have.string(emailFilter);
     expect(query).to.have.string(titleFilter);
     expect(query).to.have.string(departmentFilter);
+  });
+});
+
+describe("createEmployee", () => {
+  let input;
+
+  beforeEach(() => {
+    input = {
+      name: "NAME",
+      email: "EMAIL",
+      dob: "DOB",
+      phone: "PHONE",
+      picture_thumbnail: "PICTURE_THUMBNAIL",
+      department: "DEPARTMENT",
+      title: "TITLE",
+    };
+  });
+
+  it("returns an employee with a unique id", () => {
+    const sql = sinon.spy();
+    const output = createEmployee(sql, input);
+    expect(output["id"]).to.not.be.null;
+  });
+
+  it("uses all the input args", () => {
+    const sql = sinon.spy();
+    createEmployee(sql, input);
+    const queryInsertArgs = sql.args[0][0];
+    Object.keys(input).forEach((key) => {
+      expect(queryInsertArgs[key]).to.equal(input[key]);
+    });
   });
 });
