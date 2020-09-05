@@ -1,6 +1,7 @@
-import { getStringFilter, getEmployees } from "../../src/db/employee-crud.js";
 import sinon from "sinon";
 import { expect } from "chai";
+
+import { getStringFilter, getEmployees } from "../../src/db/employee-crud.js";
 
 describe("getStringFilter", () => {
   it("should return a valid prefix search sql", () => {

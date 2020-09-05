@@ -288,7 +288,9 @@
         ...
    ```
 
-4. Need to filter employees by name, email, title, or department. Add a test framework at the same time. Sources:
+4. Need to filter employees by name, email, title, or department. Add a test framework at the same time. [GitHub](https://github.com/bgoosman/employee-directory/commit/5241877bb2ad9769d79b876d3db305a5e0baa5ba)
+
+Sources:
 
 - [Mutations and Input Types](https://graphql.org/graphql-js/mutations-and-input-types/)
 - [How to pass variables in GraphiQL](https://atheros.ai/blog/graphql-quick-tip-how-to-pass-variables-in-graphiql)
@@ -297,3 +299,5 @@
 - [The Ultimate Unit Testing Cheat-sheet for Mocha, Chai, and Sinon](https://gist.github.com/yoavniran/1e3b0162e1545055429e#sinon)
 - [If you want expect() asserts: Chai](https://www.chaijs.com/)
 - [How to export multiple functions the ES6 way](https://stackoverflow.com/questions/38296667/getting-unexpected-token-export)
+
+5. Add code coverage with [c8](https://github.com/bcoe/c8#readme). I tried nyc but it doesn't support the import module syntax.
