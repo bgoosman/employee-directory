@@ -16,6 +16,7 @@ services:
 
   backend:
     image: bgoosman/employee-directory-backend
+    command: npx nodemon -r esm --trace-warnings src/server.js
     environment:
       PGHOST: host.docker.internal
       PGPORT: 5432
@@ -23,3 +24,5 @@ services:
       PGPASSWORD: employee-directory-postgres-password
     ports:
       - 4000:4000
+    volumes:
+      - ./backend:/usr/src/app

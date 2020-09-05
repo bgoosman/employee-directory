@@ -1,15 +1,27 @@
 import { GraphQLServer } from "graphql-yoga";
-import { makeDatabase } from "./make-database";
+import { makeDatabase } from "./db/make-database";
+import { getEmployees } from "./db/employee-crud";
 
 const typeDefs = `
   type Query {
-    hello(name: String): String!
+    employees: [Employee!]!
+  }
+
+  type Employee {
+    id: String!
+    name: String!
+    email: String!
+    dob: String!
+    phone: String!
+    picture_thumbnail: String!
+    department: String!
+    title: String! 
   }
 `;
 
 const resolvers = {
   Query: {
-    hello: (_, { name }) => `Hello ${name || "World"}`,
+    employees: () => getEmployees(),
   },
 };
 

@@ -230,3 +230,20 @@
 
    Execute a GET http://localhost:4000/make-database.
    ![](postgres.png)
+
+## 2020-09-04
+
+1. I got sick of rebuilding my docker containers for every code change. Fortunately [there is hope](https://medium.com/better-programming/docker-in-development-with-nodemon-d500366e74df). I added the following to my backend service in docker-compose.yml.
+   ```
+   command: npx nodemon -r esm src/server.js
+   ...
+   volumes:
+     - ./backend:/usr/src/app
+   ```
+   Fresh air:
+   ```
+   backend_1  | [nodemon] restarting due to changes...
+   backend_1  | [nodemon] starting `node -r esm src/server.js`
+   backend_1  | Server is running on localhost:4000
+   ```
+2. Need to get employees.

@@ -35,7 +35,7 @@ function userToEmployee(user) {
     email: user["email"],
     dob: user["dob"]["date"],
     phone: user["phone"],
-    picture: user["picture"],
+    picture_thumbail: user["picture"]["thumbnail"],
     department: randomDepartment,
     title: randomTitle,
   };
@@ -52,14 +52,14 @@ async function generateRandomEmployees(employeeCount) {
 
 export async function makeDatabase(employeeCount) {
   const sql = postgres();
-  await sql`DROP TABLE employees`;
+  await sql`DROP TABLE IF EXISTS employees`;
   await sql`CREATE TABLE employees (
     id varchar PRIMARY KEY,
     name varchar,
     email varchar,
     dob varchar,
     phone varchar,
-    picture jsonb,
+    picture_thumbnail varchar,
     department varchar,
     title varchar
   )`;
@@ -67,14 +67,14 @@ export async function makeDatabase(employeeCount) {
   for (const employee of employees) {
     await sql`
       INSERT INTO employees(
-        id, name, email, dob, phone, picture, department, title)
+        id, name, email, dob, phone, picture_thumbnail, department, title)
       VALUES (
         ${employee["id"]},
         ${employee["name"]},
         ${employee["email"]},
         ${employee["dob"]},
         ${employee["phone"]},
-        ${sql.json(employee["picture"])},
+        ${employee["picture_thumbnail"]},
         ${employee["department"]},
         ${employee["title"]}
       )
