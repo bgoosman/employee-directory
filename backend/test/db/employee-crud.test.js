@@ -4,12 +4,14 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 
 import {
+  defaultLimit,
   getStringFilter,
   getEmployees,
   createEmployee,
   updateEmployee,
   deleteEmployee,
 } from "../../src/db/employee-crud.js";
+import { employees } from "../fixtures/employee.js";
 
 describe("getStringFilter", () => {
   it("should return a valid prefix search sql", () => {
@@ -19,31 +21,69 @@ describe("getStringFilter", () => {
   });
 });
 
+function makeUnsafeSqlStub(count) {
+  if (!count) count = defaultLimit;
+  const stub = sinon.stub();
+  const slice = employees.slice(0, count);
+  stub.onCall(0).returns([{ count }]);
+  stub.onCall(1).returns(slice);
+  return {
+    unsafe: stub,
+  };
+}
+
 describe("getEmployees", () => {
-  it("uses all the filters", () => {
+  it("uses all the filters", async () => {
     const filters = {
       name: "Me",
       email: "em",
       title: "Aa",
       department: "Sa",
     };
-    const sql = {
-      unsafe: sinon.spy(),
-    };
-    const nameFilter = getStringFilter("name", filters["name"]);
-    const emailFilter = getStringFilter("email", filters["email"]);
-    const titleFilter = getStringFilter("title", filters["title"]);
-    const departmentFilter = getStringFilter(
-      "department",
-      filters["department"]
-    );
-    getEmployees(sql, filters);
+    const sql = makeUnsafeSqlStub();
+    await getEmployees(sql, filters);
     const query = sql.unsafe.args[0][0];
     expect(query).to.not.be.null;
-    expect(query).to.have.string(nameFilter);
-    expect(query).to.have.string(emailFilter);
-    expect(query).to.have.string(titleFilter);
-    expect(query).to.have.string(departmentFilter);
+    expect(query).to.have.string(getStringFilter("name", filters["name"]));
+    expect(query).to.have.string(getStringFilter("email", filters["email"]));
+    expect(query).to.have.string(getStringFilter("title", filters["title"]));
+    expect(query).to.have.string(
+      getStringFilter("department", filters["department"])
+    );
+  });
+
+  it("applies a limit", async () => {
+    const first = 5;
+    const sql = makeUnsafeSqlStub(first);
+    await getEmployees(sql, {}, first);
+    const query = sql.unsafe.args[1][0];
+    expect(query).to.have.string(`limit ${first}`);
+  });
+
+  it("applies a default limit", async () => {
+    const sql = makeUnsafeSqlStub();
+    await getEmployees(sql, {});
+    const query = sql.unsafe.args[1][0];
+    expect(query).to.have.string(`limit ${defaultLimit}`);
+  });
+
+  it("applies a cursor", async () => {
+    const first = 5;
+    const after = "AFTER";
+    const sql = makeUnsafeSqlStub(first);
+    await getEmployees(sql, {}, first, after);
+    const query = sql.unsafe.args[1][0];
+    expect(query).to.have.string(`and name > '${after}'`);
+  });
+
+  it("returns a page of employees", async () => {
+    const sql = makeUnsafeSqlStub(defaultLimit);
+    const page = await getEmployees(sql, {});
+    expect(page["totalCount"]).to.equal(defaultLimit);
+    expect(page["edges"].length).to.equal(defaultLimit);
+    const lastEdge = page["edges"][page["edges"].length - 1];
+    const endCursor = page["pageInfo"]["endCursor"];
+    expect(lastEdge["cursor"]).to.equal(endCursor);
   });
 });
 

@@ -11,7 +11,7 @@ import postgres from "postgres";
 // TODO: should id: String be id: ID?
 const typeDefs = `
   type Query {
-    employees(filter: FilterInput): [Employee!]!
+    employees(filter: FilterInput, first: Int, after: String): EmployeePage!
   }
 
   input FilterInput {
@@ -30,6 +30,21 @@ const typeDefs = `
     picture_thumbnail: String!
     department: String!
     title: String! 
+  }
+
+  type EmployeePage {
+    totalCount: Int!
+    edges: [EmployeeEdge!]!
+    pageInfo: EmployeePageInfo!
+  }
+
+  type EmployeeEdge {
+    node: Employee!
+    cursor: String!
+  }
+
+  type EmployeePageInfo {
+    endCursor: String!
   }
 
   type Mutation {
@@ -72,7 +87,8 @@ const sql = postgres();
 
 const resolvers = {
   Query: {
-    employees: (_, { filter }) => getEmployees(sql, filter),
+    employees: (_, { filter, first, after }) =>
+      getEmployees(sql, filter, first, after),
   },
   Mutation: {
     createEmployee: (_, { input }) => createEmployee(sql, input),

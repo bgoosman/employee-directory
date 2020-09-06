@@ -10,25 +10,54 @@ const updateableAttributes = [
   "department",
   "title",
 ];
+const defaultLimit = 15;
 
 function getStringFilter(fieldName, searchPrefix) {
   return searchPrefix ? `and ${fieldName} like '${searchPrefix}%'` : "";
 }
 
-// TODO: pagination? https://graphql.org/learn/pagination/ & https://relay.dev/graphql/connections.htms
-async function getEmployees(sql, filter) {
+async function getEmployees(sql, filter, first, after) {
   const andName = getStringFilter("name", filter["name"]);
   const andEmail = getStringFilter("email", filter["email"]);
   const andTitle = getStringFilter("title", filter["title"]);
   const andDepartment = getStringFilter("department", filter["department"]);
+  const andNameAfter = after ? `and name > '${after}'` : "";
+  const limit = first ? `limit ${first}` : `limit ${defaultLimit}`;
   // TODO: in production, I would find a different library that supported
   // dynamic where clauses and template literals, but at this point
   // it didn't feel worth switching libraries
+  const totalCount = await sql.unsafe(`
+    select COUNT(*) from employees
+    where 1=1
+      ${andName}
+      ${andEmail}
+      ${andTitle}
+      ${andDepartment}
+  `);
   const employees = await sql.unsafe(`
     select * from employees
-    where 1=1 ${andName} ${andEmail} ${andTitle} ${andDepartment}
+    where 1=1
+      ${andName}
+      ${andEmail}
+      ${andTitle}
+      ${andDepartment}
+      ${andNameAfter}
+    order by name asc
+    ${limit}
   `);
-  return employees;
+  return Promise.resolve({
+    totalCount: totalCount[0]["count"],
+    edges: employees.map((employee) => {
+      return {
+        node: employee,
+        cursor: employee["name"],
+      };
+    }),
+    pageInfo: {
+      endCursor:
+        employees.length > 0 ? employees[employees.length - 1]["name"] : "",
+    },
+  });
 }
 
 async function createEmployee(sql, input) {
@@ -60,6 +89,7 @@ async function deleteEmployee(sql, input) {
 }
 
 export {
+  defaultLimit,
   getStringFilter,
   getEmployees,
   createEmployee,

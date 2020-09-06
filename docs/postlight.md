@@ -31,7 +31,7 @@
     * Delete employees
     ```
 
-# Diary
+G# Diary
 
 ## 2020-09-02
 
@@ -416,4 +416,61 @@
    ------------------|---------|----------|---------|---------|-------------------
    ```
 
-9. If I'm going to be searching through thousands of employees, I'll need pagination.
+9. If I'm going to be searching through thousands of employees, I'll need pagination. The GraphQL site [recommends a cursor approach](https://graphql.org/learn/pagination/). Limit / offset could work but [it doesn't scale](https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/). The link above suggests "keyset pagination". The getEmployees query should accept `after` and `limit` arguments. The getEmployees query will return at most `limit` employees after the `after` cursor. The cursor will identify the last entity in a page. The cursor will be a combination of the values of all the currently sorted columns. For example, by default we will sort by `name` ascending. Then, `getEmployees(after: $cursor, limit: 10)` will return the first ten results of this query:
+
+   ```
+   # Get first ten employees after and not including name = $cusor
+   getEmployees(after: $cursor, limit: 10):
+   select * from employees
+   where name > $cursor
+   order by name asc
+
+   # Get first ten employees ordered by name
+   getEmployees(limit: 10)
+   select * from employees
+   order by name asc
+   ```
+
+   Until we support sorting by other columns, we can stick to using the name as a cursor.
+
+   ```
+   # This query returns the first employee after the one named "Adalgisa Rodrigues"
+   query getEmployees($filter:FilterInput) {
+     employees(filter:$filter, first:1, after:"Adalgisa Rodrigues") {
+       id
+       name
+       email
+       dob
+       phone
+       picture_thumbnail
+       department
+       title
+     }
+   }
+   ```
+
+   We'll need the total count of employees, the last cursor in the current page, and a boolean hasNextPage to enable pagination.
+
+   ```
+   query getEmployees($filter:FilterInput){
+     employees(filter:$filter, first:5, after:"Christoffer Christiansen"){
+       totalCount
+       edges {
+         node {
+           id
+           name
+           email
+           dob
+           phone
+           picture_thumbnail
+           department
+           title
+         }
+         cursor
+       }
+       pageInfo {
+         endCursor
+       }
+     }
+   }
+   ```
