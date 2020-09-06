@@ -305,4 +305,115 @@
 ## 2020-09-05
 
 6. Adding a mutation to create an employee next. [GitHub](https://github.com/bgoosman/employee-directory/commit/46e632c3a9dc8ce3c0edaa173c842a5a7d2bd688)
-7. Need to update an employee.
+
+7. Need to update an employee. [GitHub](https://github.com/bgoosman/employee-directory/commit/ca46d175620e29b07261b0cfea6d3a3ce3da8f4c)
+
+   ```
+   mutation updateEmployee($input: UpdateEmployeeInput!) {
+     updateEmployee(input: $input) {
+       id
+       name
+       email
+       dob
+       phone
+       picture_thumbnail
+       department
+       title
+     }
+   }
+   Query variables:
+   {
+     "input": {
+       "id":"782750f3-45dc-4698-b942-fefea288b72d",
+         "name": "Joseph Joestar!",
+         "email": "j.j@ba.com",
+         "dob": "1957-08-14T14:14:11.800Z",
+         "phone": "111-111-1111",
+         "picture_thumbnail": "https://randomuser.me/api/portraits/thumb/men/48.jpg",
+         "department": "Qi",
+         "title": "Joestar"
+       }
+   }
+   ```
+
+   Sources
+
+   - [How to expect an async exception in Mocha/Chai](https://stackoverflow.com/questions/45466040/verify-that-an-exception-is-thrown-using-mocha-chai-and-async-await)
+   - [Chai as Promised](https://www.chaijs.com/plugins/chai-as-promised/)
+   - [Sinon fakes that return mock values](https://sinonjs.org/releases/latest/fakes/)
+   - [Throwing errors in GraphQL](https://dev.to/andre/handling-errors-in-graphql--2ea3)
+   - [Argument spreading in JS](https://2ality.com/2011/08/spreading.html)
+
+8. Need to delete an employee.
+
+   ```
+   mutation deleteEmployee($input: DeleteEmployeeInput!) {
+     deleteEmployee(input: $input) {
+       count
+     }
+   }
+   Query variables:
+   {
+     "input":{
+       "id":"782750f3-45dc-4698-b942-fefea288b72d"
+     }
+   }
+   Response #1:
+   {
+     "data": {
+       "deleteEmployee": {
+         "count": 1
+       }
+     }
+   }
+   Response #2:
+   {
+     "data": {
+       "deleteEmployee": {
+         "count": 0
+       }
+     }
+   }
+   ```
+
+   Our test run so far:
+
+   ```
+   ➜  backend git:(master) ✗ npm test
+
+   > backend@1.0.0 test /Users/admin/code/employee-directory/backend
+   > npx c8 mocha -r esm --recursive
+
+
+
+     getStringFilter
+       ✓ should return a valid prefix search sql
+
+     getEmployees
+       ✓ uses all the filters
+
+     createEmployee
+       ✓ returns an employee with a unique id
+       ✓ uses all the input args
+
+     updateEmployee
+       ✓ returns the employee
+       ✓ updates all the input args except the primary key
+       ✓ throws an error if no update occurred
+
+     deleteEmployee
+       ✓ returns the count of employees deleted
+       ✓ uses the input id
+
+
+     9 passing (19ms)
+
+   ------------------|---------|----------|---------|---------|-------------------
+   File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+   ------------------|---------|----------|---------|---------|-------------------
+   All files         |     100 |      100 |     100 |     100 |
+   employee-crud.js |     100 |      100 |     100 |     100 |
+   ------------------|---------|----------|---------|---------|-------------------
+   ```
+
+9. If I'm going to be searching through thousands of employees, I'll need pagination.

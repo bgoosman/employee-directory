@@ -4,9 +4,11 @@ import {
   getEmployees,
   createEmployee,
   updateEmployee,
+  deleteEmployee,
 } from "./db/employee-crud";
 import postgres from "postgres";
 
+// TODO: should id: String be id: ID?
 const typeDefs = `
   type Query {
     employees(filter: FilterInput): [Employee!]!
@@ -33,6 +35,7 @@ const typeDefs = `
   type Mutation {
     createEmployee(input: CreateEmployeeInput!): Employee!
     updateEmployee(input: UpdateEmployeeInput!): Employee!
+    deleteEmployee(input: DeleteEmployeeInput!): DeleteEmployeeOutput!
   }
 
   input CreateEmployeeInput {
@@ -55,6 +58,14 @@ const typeDefs = `
     department: String!
     title: String! 
   }
+
+  input DeleteEmployeeInput {
+    id: String!
+  }
+
+  type DeleteEmployeeOutput {
+    count: Int!
+  }
 `;
 
 const sql = postgres();
@@ -66,6 +77,7 @@ const resolvers = {
   Mutation: {
     createEmployee: (_, { input }) => createEmployee(sql, input),
     updateEmployee: (_, { input }) => updateEmployee(sql, input),
+    deleteEmployee: (_, { input }) => deleteEmployee(sql, input),
   },
 };
 

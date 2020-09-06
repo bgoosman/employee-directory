@@ -8,6 +8,7 @@ import {
   getEmployees,
   createEmployee,
   updateEmployee,
+  deleteEmployee,
 } from "../../src/db/employee-crud.js";
 
 describe("getStringFilter", () => {
@@ -120,5 +121,33 @@ describe("updateEmployee", () => {
       count: 0,
     });
     await expect(updateEmployee(sql, input)).to.be.rejectedWith(Error);
+  });
+});
+
+describe("deleteEmployee", () => {
+  let input;
+
+  beforeEach(() => {
+    input = {
+      id: "ID",
+    };
+  });
+
+  it("returns the count of employees deleted", async () => {
+    const expectedCount = 1;
+    const sql = sinon.fake.returns({
+      count: expectedCount,
+    });
+    const result = await deleteEmployee(sql, input);
+    expect(result.count).to.equal(expectedCount);
+  });
+
+  it("uses the input id", async () => {
+    const sql = sinon.fake.returns({
+      count: 1,
+    });
+    await deleteEmployee(sql, input);
+    const deletedId = sql.args[0][1];
+    expect(deletedId).to.equal(input["id"]);
   });
 });
