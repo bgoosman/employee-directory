@@ -27,3 +27,11 @@ services:
       - 5858:5858 # debug port
     volumes:
       - ./backend:/usr/src/app
+
+  frontend:
+    image: bgoosman/employee-directory-frontend
+    command: npx snowpack dev
+    ports:
+      - 8181:8181
+    volumes:
+      - ./frontend:/usr/src/app

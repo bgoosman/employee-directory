@@ -474,3 +474,27 @@ G# Diary
      }
    }
    ```
+
+## 2020-09-06
+
+1. The backend satisfies our requirements, so we can finally move onto the frontend. I want to try [Snowpack](https://www.snowpack.dev/) for its promises of fast unbundled development.
+
+   ```
+   npx create-snowpack-app frontend --template @snowpack/app-template-react
+   npx snowpack dev
+   ```
+
+   ![](snowpack.png)
+
+   ```
+   # 1. Create a Dockerfile for the frontend
+   # 2. Add this to docker-compose.yml
+   # 3. App will reload on any file change!
+   frontend:
+     image: bgoosman/employee-directory-frontend
+     command: npx snowpack dev
+     ports:
+       - 8181:8181
+     volumes:
+       - ./frontend:/usr/src/app
+   ```
