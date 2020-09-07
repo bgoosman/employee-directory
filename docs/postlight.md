@@ -2,10 +2,10 @@
 
     ```
     Frontend
-    * Bundling: snowpack came out in 2019 replaces webpack as a code bundler
-    * UI framework: Bootstrap 5 alpha?
+    * Bundling: Snowpack
+    * UI framework: React Bootstrap
     * View framework: React
-    * JavaScript runtime: Node
+    * JavaScript runtime: Node.js
     * Animation: Framer Motion
       <motion.div
           animate={{
@@ -31,7 +31,7 @@
     * Delete employees
     ```
 
-G# Diary
+Developer Diary
 
 ## 2020-09-02
 
@@ -497,4 +497,53 @@ G# Diary
        - 8181:8181
      volumes:
        - ./frontend:/usr/src/app
+   ```
+
+2. We want to provide UI for all of these
+
+   - Paginated list of employees
+   - Filter by name, email, title, department
+   - Create an employee
+   - Update an employee
+   - Delete an employee
+
+   Finishing the first will get our project mostly setup to solve the others. Eventually, we also want to make it look stylish and animative. Starting with a UI framework will save us time later. I'm looking for something with
+
+   - ready-to-use React components
+   - built-in accessibility
+
+   I'm already using [Material UI](https://material-ui.com/) on a different side project, so my pick here is [React Bootstrap](https://react-bootstrap.github.io/). I also considered [Ant Design](https://ant.design/), [Blueprint](https://blueprintjs.com/), [Reach UI](https://reach.tech/), [Bootstrap v5 alpha](https://blog.getbootstrap.com/2020/06/16/bootstrap-5-alpha/), [Fluent UI](https://developer.microsoft.com/en-us/fluentui), and [Reakit](https://reakit.io/). React Bootstrap promises accessibility out of the box and comes with the full functionality of the Bootstrap framework, which means we get grid layout and a bunch of UI components. Material UI / Blueprint / Ant Design seem nice but perhaps overkill for this app.
+
+   ```
+   ➜  frontend git:(master) ✗ npm install react-bootstrap bootstrap
+   ```
+
+   Testing React components: [react-testing-library](https://github.com/testing-library/react-testing-library). React Testing Library is a replacement for Enzyme.
+
+   ```
+   ➜  frontend git:(master) ✗ npm install --save-dev @testing-library/react
+   ```
+
+   Animations: [Framer Motion](https://www.framer.com/motion/)
+
+   ```
+   ➜  frontend git:(master) ✗ npm install framer-motion
+   ```
+
+   GraphQL client: [Apollo](https://www.apollographql.com/docs/react/get-started/)
+
+   ```
+   ➜  frontend git:(master) ✗ npm install @apollo/client graphql
+   ```
+
+   Client side router: [react-router-dom](https://reactrouter.com/web/guides/quick-start)
+
+   ```
+   ➜  frontend git:(master) ✗ npm install react-router-dom
+   ```
+
+   State container: [MobX](https://mobx.js.org/README.html)
+
+   ```
+   ➜  frontend git:(master) ✗ npm install mobx
    ```
