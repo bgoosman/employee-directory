@@ -533,7 +533,7 @@ Developer Diary
    GraphQL client: [Apollo](https://www.apollographql.com/docs/react/get-started/)
 
    ```
-   ➜  frontend git:(master) ✗ npm install @apollo/client graphql
+   ➜  frontend git:(master) ✗ npm install @apollo/client graphql @apollo/react-hook
    ```
 
    Client side router: [react-router-dom](https://reactrouter.com/web/guides/quick-start)
@@ -542,8 +542,52 @@ Developer Diary
    ➜  frontend git:(master) ✗ npm install react-router-dom
    ```
 
-   State container: [MobX](https://mobx.js.org/README.html)
+   Reactive state management: [MobX](https://mobx.js.org/README.html). I installed the standard mobx-react library first, but there's actually a version that supports functional components only, which is what we want in this hook filled world.
 
    ```
    ➜  frontend git:(master) ✗ npm install mobx
+   ➜  frontend git:(master) ✗ npm install mobx-react-lite
    ```
+
+   After reading about Apollo Client's hook library (useQuery, useMutation), I can likely avoid using MobX for now. If I need to observe anything in a React Context, I can reintroduce MobX then.
+
+   ```
+   ➜  frontend git:(master) ✗ npm uninstall mobx mobx-react-lite
+   ```
+
+   Reading:
+
+   - [React Context](https://reactjs.org/docs/context.html)
+   - [mobx-react recipes - context](https://mobx-react.js.org/recipes-context)
+   - [Apollo Client React hooks](https://www.apollographql.com/docs/react/api/react/hooks/)
+   - [Apollo Client, now with hooks](https://www.apollographql.com/blog/apollo-client-now-with-react-hooks-676d116eeae2/)
+   - [Apollo Client hooks + MobX](https://levelup.gitconnected.com/graceful-graphql-with-react-hooks-and-mobx-38b66e8d0ee7)
+   - [Apollo Client - Subscriptions](https://www.apollographql.com/docs/react/data/subscriptions/#1-install-required-libraries)
+
+## 2020-09-07
+
+1. List employees. `useQuery` makes this simple. All we need is a functional component representing a list of employees and a GraphQL query to fetch the employees.
+
+   - [react-bootstrap Spinners](https://react-bootstrap.github.io/components/spinners/)
+   - [Hooks Rules](https://reactjs.org/docs/hooks-rules.html)
+   - [Getting Started with ESLint](https://eslint.org/docs/user-guide/getting-started)
+   - [Javascript Standard Style](https://github.com/standard/standard#usage)
+   - [How to use ESLint with Jest](https://stackoverflow.com/questions/31629389/how-to-use-eslint-with-jest)
+   - [remove git submodule but keep files](https://stackoverflow.com/questions/26752481/remove-git-submodule-but-keep-files)
+   - [VS Code ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+   - [Import Aliases and Snowpack](https://www.snowpack.dev/#import-aliases)
+   - [Import Aliases and Jest](https://jestjs.io/docs/en/configuration#modulenamemapper-objectstring-string--arraystring)
+   - [Apollo Client queries](https://www.apollographql.com/docs/react/data/queries/)
+   - [Testing Apollo Client](https://www.apollographql.com/docs/react/development-testing/testing/)
+   - [Avoid the test user](https://kentcdodds.com/blog/avoid-the-test-user)
+   - [Example: Testing how a component is used](https://github.com/kentcdodds/advanced-react-patterns/blob/06a16f86d2397c4451da9faf9aeb64cbe4452ff6/src/__tests__/01.js)
+   - [Setting up Visual Studio Code intellisense for Jest globals](https://humanwhocodes.com/snippets/2019/05/jest-globals-intellisense-visual-studio-code/)
+   - [React Testing Library cheatsheet](https://testing-library.com/docs/react-testing-library/cheatsheet)
+   - [Which (React Testing Library) query should I use?](https://testing-library.com/docs/guide-which-query)
+   - [List of ARIA roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques#Roles)
+   - [Jest expect API](https://jestjs.io/docs/en/expect)
+   - [Best practices for pagination UX](https://medium.com/uxness/best-practices-for-designing-pagination-in-web-1c33140f31b)
+
+   There's a weird bug with the test coverage where the return value of EmployeeList isn't covered, yet it obviously has run because there are employees rendered.
+
+   ![](employee_list.png)

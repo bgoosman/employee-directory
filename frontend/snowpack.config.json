@@ -1,0 +1,20 @@
+{
+  "alias": {
+    "components": "./src/components",
+    "fixtures": "./src/fixtures"
+  },
+  "devOptions": {
+    "port": 8181
+  },
+  "extends": "@snowpack/app-scripts-react",
+  "install": ["@apollo/client/testing", "@testing-library/react"],
+  "plugins": [
+    [
+      "@snowpack/plugin-run-script",
+      {
+        "cmd": "npx eslint 'src/**/*.{js,jsx,ts,tsx}'",
+        "watch": "watch \"$1\" src"
+      }
+    ]
+  ]
+}
