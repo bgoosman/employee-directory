@@ -588,6 +588,9 @@ Developer Diary
    - [Jest expect API](https://jestjs.io/docs/en/expect)
    - [Best practices for pagination UX](https://medium.com/uxness/best-practices-for-designing-pagination-in-web-1c33140f31b)
 
-   There's a weird bug with the test coverage where the return value of EmployeeList isn't covered, yet it obviously has run because there are employees rendered.
+   There's a weird bug with the test coverage where the return value of EmployeeList isn't covered, yet it obviously has run because there are employees rendered. Setting Jest's coverageProvider to `babel` resolves this.
 
    ![](employee_list.png)
+
+## 2020-09-08
+

@@ -6,14 +6,15 @@ import { randomEmployees } from 'fixtures/random-employees'
 
 const PAGE_SIZE = 25
 const FIRST_PAGE = randomEmployees.slice(0, PAGE_SIZE)
+const ERROR_TEXT = 'error during fetch'
 
-function makeMockGetEmployeesQuery (variables) {
-  const { first, after } = variables
+function makeMockGetEmployeesQuery (filter, first, after, isError) {
   return {
     request: {
       query: GET_EMPLOYEES_QUERY,
-      variables
+      variables: { filter, first, after }
     },
+    error: isError ? new Error(ERROR_TEXT) : null,
     result: () => {
       const index = after ? randomEmployees.findIndex(employee => employee.name.startsWith(after)) + 1 : 0
       const page = randomEmployees.slice(index, first)
@@ -37,12 +38,16 @@ function makeMockGetEmployeesQuery (variables) {
   }
 }
 
-function renderUsage (filter = {}, first = PAGE_SIZE, after = '') {
-  const props = { filter, first, after }
-  const queryMocks = [makeMockGetEmployeesQuery(props)]
+function renderUsage ({
+  filter = {},
+  first = PAGE_SIZE,
+  after = '',
+  isError = false
+} = {}) {
+  const queryMocks = [makeMockGetEmployeesQuery(filter, first, after, isError)]
   const utils = render(
     <MockedProvider mocks={queryMocks} addTypename={false}>
-      <EmployeeList {...props} />
+      <EmployeeList filter={filter} first={first} after={after} isError={isError} />
     </MockedProvider>
   )
   return {
@@ -69,4 +74,13 @@ it('renders a list of employees', async () => {
   FIRST_PAGE.forEach(employee => {
     expect(getByText(employee.name)).toBeDefined()
   })
+})
+
+it('renders an error', async () => {
+  const { getByText, waitForLoading } = renderUsage({ isError: true })
+
+  await waitForLoading()
+
+  expect(getByText('Failed to fetch employees')).toBeDefined()
+  expect(getByText(ERROR_TEXT)).toBeDefined()
 })

@@ -4,7 +4,7 @@ module.exports = {
   ...require('@snowpack/app-scripts-react/jest.config.js')(),
   clearMocks: true,
   coverageDirectory: 'coverage',
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
   collectCoverage: true,
   moduleNameMapper: {
     '^components/(.*)': '<rootDir>/src/components/$1',

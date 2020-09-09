@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { Spinner } from 'react-bootstrap'
+import { Spinner, Alert } from 'react-bootstrap'
 import { useQuery, gql } from '@apollo/client'
 
 export const GET_EMPLOYEES_QUERY = gql`
@@ -44,7 +44,12 @@ export function EmployeeList ({ filter, first, after }) {
     )
   }
 
-  if (error) return error
+  if (error) {
+    return <Alert variant="danger" dismissible>
+      <Alert.Heading>Failed to fetch employees</Alert.Heading>
+      <p>{error.message}</p>
+    </Alert>
+  }
 
   return (
     <div>
