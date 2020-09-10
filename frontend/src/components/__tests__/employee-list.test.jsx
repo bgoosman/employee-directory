@@ -1,23 +1,24 @@
 import * as React from 'react'
-import { render, waitForElementToBeRemoved } from '@testing-library/react'
+import { fireEvent, render, waitForElementToBeRemoved } from '@testing-library/react'
 import { MockedProvider } from '@apollo/client/testing'
 import { EmployeeList, GET_EMPLOYEES_QUERY } from '../employee-list'
 import { randomEmployees } from 'fixtures/random-employees'
+import { act } from 'react-dom/test-utils'
 
 const PAGE_SIZE = 25
-const FIRST_PAGE = randomEmployees.slice(0, PAGE_SIZE)
+const PREVIOUS_PAGE = randomEmployees.slice(0, PAGE_SIZE)
+const CURRENT_PAGE = randomEmployees.slice(PAGE_SIZE + 1, PAGE_SIZE * 2 + 1)
+const NEXT_PAGE = randomEmployees.slice(PAGE_SIZE * 2 + 1, PAGE_SIZE * 3 + 1)
 const ERROR_TEXT = 'error during fetch'
 
-function makeMockGetEmployeesQuery (filter, first, after, isError) {
+function makeMockGetEmployeesQuery (variables, isError, page) {
   return {
     request: {
       query: GET_EMPLOYEES_QUERY,
-      variables: { filter, first, after }
+      variables
     },
     error: isError ? new Error(ERROR_TEXT) : null,
     result: () => {
-      const index = after ? randomEmployees.findIndex(employee => employee.name.startsWith(after)) + 1 : 0
-      const page = randomEmployees.slice(index, first)
       return {
         data: {
           employees: {
@@ -40,14 +41,47 @@ function makeMockGetEmployeesQuery (filter, first, after, isError) {
 
 function renderUsage ({
   filter = {},
-  first = PAGE_SIZE,
-  after = '',
+  pageSize = PAGE_SIZE,
   isError = false
 } = {}) {
-  const queryMocks = [makeMockGetEmployeesQuery(filter, first, after, isError)]
+  const queryMocks = [
+    makeMockGetEmployeesQuery(
+      {
+        filter,
+        first: pageSize,
+        after: undefined,
+        last: undefined,
+        before: undefined
+      },
+      isError,
+      CURRENT_PAGE
+    ),
+    makeMockGetEmployeesQuery(
+      {
+        filter,
+        first: undefined,
+        after: undefined,
+        last: pageSize,
+        before: CURRENT_PAGE[0].name
+      },
+      isError,
+      PREVIOUS_PAGE
+    ),
+    makeMockGetEmployeesQuery(
+      {
+        filter,
+        first: pageSize,
+        after: CURRENT_PAGE[CURRENT_PAGE.length - 1].name,
+        last: undefined,
+        before: undefined
+      },
+      isError,
+      NEXT_PAGE
+    )
+  ]
   const utils = render(
     <MockedProvider mocks={queryMocks} addTypename={false}>
-      <EmployeeList filter={filter} first={first} after={after} isError={isError} />
+      <EmployeeList filter={filter} pageSize={pageSize} />
     </MockedProvider>
   )
   return {
@@ -71,7 +105,7 @@ it('renders a list of employees', async () => {
   const header = getByText(`Displaying ${PAGE_SIZE} of ${randomEmployees.length} employees`)
   expect(header).toBeDefined()
 
-  FIRST_PAGE.forEach(employee => {
+  CURRENT_PAGE.forEach(employee => {
     expect(getByText(employee.name)).toBeDefined()
   })
 })
@@ -83,4 +117,36 @@ it('renders an error', async () => {
 
   expect(getByText('Failed to fetch employees')).toBeDefined()
   expect(getByText(ERROR_TEXT)).toBeDefined()
+})
+
+it('fetches the previous page', async () => {
+  const { getByText, waitForLoading } = renderUsage()
+
+  await waitForLoading()
+
+  const previousButton = getByText('Previous')
+  expect(previousButton).toBeDefined()
+  await act(async () => {
+    fireEvent.click(previousButton)
+  })
+
+  PREVIOUS_PAGE.forEach(employee => {
+    expect(getByText(employee.name)).toBeDefined()
+  })
+})
+
+it('fetches the next page', async () => {
+  const { getByText, waitForLoading } = renderUsage()
+
+  await waitForLoading()
+
+  const nextButton = getByText('Next')
+  expect(nextButton).toBeDefined()
+  await act(async () => {
+    fireEvent.click(nextButton)
+  })
+
+  NEXT_PAGE.forEach(employee => {
+    expect(getByText(employee.name)).toBeDefined()
+  })
 })

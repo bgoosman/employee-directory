@@ -594,3 +594,16 @@ Developer Diary
 
 ## 2020-09-08
 
+1. Pagination
+
+  While implementing pagination, I realized it isn't trivial to support random lookup with the cursor approach to pagination, so I took a simplified approach and just did next and previous.
+
+  - [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)
+  - [Apollo Client - refetching](https://www.apollographql.com/docs/react/data/queries/#refetching)
+  - [Apollo Client - testing error states](https://www.apollographql.com/docs/react/development-testing/testing/#testing-error-states)
+
+## 2020-09-09
+
+1. Finished pagination tonight
+
+  - [act() warning](https://github.com/testing-library/react-testing-library/issues/535#issuecomment-621992821)

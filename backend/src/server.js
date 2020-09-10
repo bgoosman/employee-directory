@@ -11,7 +11,7 @@ import postgres from "postgres";
 // TODO: should id: String be id: ID?
 const typeDefs = `
   type Query {
-    employees(filter: FilterInput, first: Int, after: String): EmployeePage!
+    employees(filter: FilterInput, first: Int, after: String, last: Int, before: String): EmployeePage!
   }
 
   input FilterInput {
@@ -87,8 +87,8 @@ const sql = postgres();
 
 const resolvers = {
   Query: {
-    employees: (_, { filter, first, after }) =>
-      getEmployees(sql, filter, first, after),
+    employees: (_, { filter, first, after, last, before }) =>
+      getEmployees(sql, filter, first, after, last, before),
   },
   Mutation: {
     createEmployee: (_, { input }) => createEmployee(sql, input),

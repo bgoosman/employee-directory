@@ -52,14 +52,6 @@ describe("getEmployees", () => {
     );
   });
 
-  it("applies a limit", async () => {
-    const first = 5;
-    const sql = makeUnsafeSqlStub(first);
-    await getEmployees(sql, {}, first);
-    const query = sql.unsafe.args[1][0];
-    expect(query).to.have.string(`limit ${first}`);
-  });
-
   it("applies a default limit", async () => {
     const sql = makeUnsafeSqlStub();
     await getEmployees(sql, {});
@@ -67,13 +59,25 @@ describe("getEmployees", () => {
     expect(query).to.have.string(`limit ${defaultLimit}`);
   });
 
-  it("applies a cursor", async () => {
+  it("uses first after", async () => {
     const first = 5;
     const after = "AFTER";
     const sql = makeUnsafeSqlStub(first);
-    await getEmployees(sql, {}, first, after);
+    await getEmployees(sql, {}, first, after, undefined, undefined);
     const query = sql.unsafe.args[1][0];
+    expect(query).to.have.string(`limit ${first}`);
     expect(query).to.have.string(`and name > '${after}'`);
+    expect(query).to.have.string(`order by name asc`);
+  });
+
+  it("uses last before", async () => {
+    const last = 5;
+    const before = "BEFORE";
+    const sql = makeUnsafeSqlStub(last);
+    await getEmployees(sql, {}, undefined, undefined, last, before);
+    const query = sql.unsafe.args[1][0];
+    expect(query).to.have.string(`limit ${last}`);
+    expect(query).to.have.string(`order by name desc`);
   });
 
   it("returns a page of employees", async () => {

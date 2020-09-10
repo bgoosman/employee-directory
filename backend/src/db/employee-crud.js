@@ -16,38 +16,53 @@ function getStringFilter(fieldName, searchPrefix) {
   return searchPrefix ? `and ${fieldName} like '${searchPrefix}%'` : "";
 }
 
-async function getEmployees(sql, filter, first, after) {
-  const andName = getStringFilter("name", filter["name"]);
-  const andEmail = getStringFilter("email", filter["email"]);
-  const andTitle = getStringFilter("title", filter["title"]);
-  const andDepartment = getStringFilter("department", filter["department"]);
-  const andNameAfter = after ? `and name > '${after}'` : "";
-  const limit = first ? `limit ${first}` : `limit ${defaultLimit}`;
+async function getEmployees(sql, filter, first, after, last, before) {
+  const andNameStartsWith = getStringFilter("name", filter["name"]);
+  const andEmailStartsWith = getStringFilter("email", filter["email"]);
+  const andTitleStartsWith = getStringFilter("title", filter["title"]);
+  const andDepartmentStartsWith = getStringFilter("department", filter["department"]);
+  let limit = `limit ${defaultLimit}`,
+      andNameAfter = '',
+      orderBy = 'order by name asc';
+  if (first) {
+    limit = `limit ${first}`
+    if (after) {
+      andNameAfter = `and name > '${after}'`;
+    }
+  } else if (last) {
+    limit = `limit ${last}`
+    orderBy = 'order by name desc';
+    if (before) {
+      andNameAfter = `and name < '${before}'`
+    }
+  }
   // TODO: in production, I would find a different library that supported
   // dynamic where clauses and template literals, but at this point
   // it didn't feel worth switching libraries
   const totalCount = await sql.unsafe(`
     select COUNT(*) from employees
     where 1=1
-      ${andName}
-      ${andEmail}
-      ${andTitle}
-      ${andDepartment}
+      ${andNameStartsWith}
+      ${andEmailStartsWith}
+      ${andTitleStartsWith}
+      ${andDepartmentStartsWith}
   `);
   const employees = await sql.unsafe(`
     select * from employees
     where 1=1
-      ${andName}
-      ${andEmail}
-      ${andTitle}
-      ${andDepartment}
+      ${andNameStartsWith}
+      ${andEmailStartsWith}
+      ${andTitleStartsWith}
+      ${andDepartmentStartsWith}
       ${andNameAfter}
-    order by name asc
+    ${orderBy}
     ${limit}
   `);
+  const reversed = last && before // to get the last x employees before a cursor, we had to reverse order the results
   return Promise.resolve({
     totalCount: totalCount[0]["count"],
-    edges: employees.map((employee) => {
+    edges: employees.map((val, index, array) => {
+      const employee = reversed ? array[array.length - index - 1] : val
       return {
         node: employee,
         cursor: employee["name"],
@@ -55,7 +70,7 @@ async function getEmployees(sql, filter, first, after) {
     }),
     pageInfo: {
       endCursor:
-        employees.length > 0 ? employees[employees.length - 1]["name"] : "",
+        employees.length > 0 ? employees[reversed ? 0 : employees.length - 1]["name"] : "",
     },
   });
 }
