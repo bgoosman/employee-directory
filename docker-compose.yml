@@ -29,5 +29,5 @@ services:
     ports:
       - 8181:8181
     # Uncomment these for dev live reloading
-    # volumes:
-    #   - ./frontend:/usr/src/app
+    volumes:
+      - ./frontend:/usr/src/app

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
 import { Button, Spinner, Alert, Pagination, Table } from 'react-bootstrap'
@@ -77,8 +78,9 @@ export const DELETE_EMPLOYEE_QUERY = gql`
   }
 `
 
-export function EmployeeRow ({ employee: { id, name, email, department, title }, employee, onDelete, onEdit }) {
+export function EmployeeRow ({ employee: { id, name, email, department, title, picture_thumbnail }, employee, onDelete, onEdit }) {
   return <tr>
+    <td><img src={picture_thumbnail} /></td>
     <td>{name}</td>
     <td>{email}</td>
     <td>{department}</td>
