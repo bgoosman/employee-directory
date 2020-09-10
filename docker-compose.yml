@@ -9,7 +9,7 @@ services:
       - 5432:5432
 
   backend:
-    image: bgoosman/employee-directory-backend
+    image: employee-directory-backend
     command: npx nodemon -r esm --inspect=0.0.0.0:5858 --trace-warnings src/server.js
     environment:
       PGHOST: host.docker.internal
@@ -19,13 +19,15 @@ services:
     ports:
       - 4000:4000
       - 5858:5858 # debug port
-    volumes:
-      - ./backend:/usr/src/app
+    # Uncomment these for dev live reloading
+    # volumes:
+    #   - ./backend:/usr/src/app
 
   frontend:
-    image: bgoosman/employee-directory-frontend
+    image: employee-directory-frontend
     command: npx snowpack dev
     ports:
       - 8181:8181
-    volumes:
-      - ./frontend:/usr/src/app
+    # Uncomment these for dev live reloading
+    # volumes:
+    #   - ./frontend:/usr/src/app
