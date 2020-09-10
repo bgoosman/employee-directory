@@ -603,26 +603,24 @@ Developer Diary
 
 ## 2020-09-09
 
-1. Finished pagination tonight. Just next and previous buttons. Refreshing the page reverts to the first page.
+1. Finished pagination tonight. Just next and previous buttons. Refreshing the page reverts to the first page. [GitHub](https://github.com/bgoosman/employee-directory/commit/58fe30d9e06e7f0eaa4691aec4de0f1443f30495)
 
     - TODO: Save current page on browser state, so reloading doesn't revert to page one.
     - TODO: Don't allow user to navigate past first and last page
     - [act() warning](https://github.com/testing-library/react-testing-library/issues/535#issuecomment-621992821)
 
-2. Filter by name, email, title, department. To be fast, we'll implement all of these as prefix searches. Let's make a filter sidebar.
+2. Filter by name, email, title, department. To be fast, we'll implement all of these as prefix searches. Let's make a filter sidebar. [GitHub](https://github.com/bgoosman/employee-directory/commit/d25be03744729bc06981f46861321772736efb94)
 
     ![](employee_list_with_pagination.png)
     - [Simplifying controlled inputs with hooks](https://rangle.io/blog/simplifying-controlled-inputs-with-hooks/)
 
-3. Delete an employee.
+3. Delete / update / create. [GitHub](https://github.com/bgoosman/employee-directory/commit/7f2184d192da3b50368ced4153bd2db81677fdb2)
 
     - TODO: Instead of reloading the current page of employees, we could delete the employee in the local cache.
-
-4. Update / create an employee. 
-
     - TODO: Instead of reloading the current page of employees, we could create / update the employee in the local cache.
+    - [Testing mutations](https://www.apollographql.com/docs/react/data/mutations/#usemutation-api)
 
-5. Final code coverage:
+4. Final code coverage:
 
     ```
     ➜  frontend git:(master) ✗ npm test

@@ -8,12 +8,6 @@ services:
     ports:
       - 5432:5432
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
   backend:
     image: bgoosman/employee-directory-backend
     command: npx nodemon -r esm --inspect=0.0.0.0:5858 --trace-warnings src/server.js
