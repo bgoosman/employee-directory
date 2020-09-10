@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { Spinner, Alert, Pagination } from 'react-bootstrap'
+import { Spinner, Alert, Pagination, Table } from 'react-bootstrap'
 import { useQuery, gql, NetworkStatus } from '@apollo/client'
 
 export const GET_EMPLOYEES_QUERY = gql`
@@ -27,8 +27,13 @@ export const GET_EMPLOYEES_QUERY = gql`
   }
 `
 
-export function EmployeeRow ({ employee: { name } }) {
-  return <div>{name}</div>
+export function EmployeeRow ({ employee: { name, email, department, title } }) {
+  return <tr>
+    <td>{name}</td>
+    <td>{email}</td>
+    <td>{department}</td>
+    <td>{title}</td>
+  </tr>
 }
 
 export function EmployeeList ({ filter, pageSize }) {
@@ -82,14 +87,24 @@ export function EmployeeList ({ filter, pageSize }) {
   const edgeCount = data.employees.edges.length
   return (
     <div>
-      <h1>
+      <h2>
         Displaying {edgeCount} of {totalCount} employees
-      </h1>
-      <div>
-        {data.employees.edges.map((edge) => (
-          <EmployeeRow key={edge.cursor} employee={edge.node} />
-        ))}
-      </div>
+      </h2>
+      <Table striped bordered hover size="sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Title</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.employees.edges.map((edge) => (
+            <EmployeeRow key={edge.cursor} employee={edge.node} />
+          ))}
+        </tbody>
+      </Table>
       <Pagination>
         <Pagination.Prev onClick={fetchPreviousPage} />
         <Pagination.Next onClick={fetchNextPage} />

@@ -596,14 +596,22 @@ Developer Diary
 
 1. Pagination
 
-  While implementing pagination, I realized it isn't trivial to support random lookup with the cursor approach to pagination, so I took a simplified approach and just did next and previous.
+    While implementing pagination, I realized it isn't trivial to support random lookup with the cursor approach to pagination, so I took a simplified approach and just did next and previous.
 
-  - [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)
-  - [Apollo Client - refetching](https://www.apollographql.com/docs/react/data/queries/#refetching)
-  - [Apollo Client - testing error states](https://www.apollographql.com/docs/react/development-testing/testing/#testing-error-states)
+    - [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)
+    - [Apollo Client - refetching](https://www.apollographql.com/docs/react/data/queries/#refetching)
+    - [Apollo Client - testing error states](https://www.apollographql.com/docs/react/development-testing/testing/#testing-error-states)
 
 ## 2020-09-09
 
-1. Finished pagination tonight
+1. Finished pagination tonight. Just next and previous buttons.
 
-  - [act() warning](https://github.com/testing-library/react-testing-library/issues/535#issuecomment-621992821)
+    - [act() warning](https://github.com/testing-library/react-testing-library/issues/535#issuecomment-621992821)
+
+2. Filter by name, email, title, department
+
+    To be fast, we'll implement all of these as prefix searches. Let's make a filter sidebar.
+
+    ![](employee_list_with_pagination.png)
+
+    - [Simplifying controlled inputs with hooks](https://rangle.io/blog/simplifying-controlled-inputs-with-hooks/)
