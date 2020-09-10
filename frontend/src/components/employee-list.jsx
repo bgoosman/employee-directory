@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
 import { Button, Spinner, Alert, Pagination, Table } from 'react-bootstrap'
+import { motion } from 'framer-motion'
 import { useQuery, useMutation, gql, NetworkStatus } from '@apollo/client'
 import { EmployeeModal } from './employee-modal'
 
@@ -80,7 +81,7 @@ export const DELETE_EMPLOYEE_QUERY = gql`
 
 export function EmployeeRow ({ employee: { id, name, email, department, title, picture_thumbnail }, employee, onDelete, onEdit }) {
   return <tr>
-    <td><img src={picture_thumbnail} /></td>
+    <td><motion.img src={picture_thumbnail} whileHover={{ scale: 1.5 }} className="profile" /></td>
     <td>{name}</td>
     <td>{email}</td>
     <td>{department}</td>
@@ -213,10 +214,12 @@ export function EmployeeList ({ filter, pageSize }) {
       <Table striped bordered hover size="sm">
         <thead>
           <tr>
+            <th></th>
             <th>Name</th>
             <th>Email</th>
             <th>Department</th>
             <th>Title</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
