@@ -1,7 +1,19 @@
 /* eslint-disable react/prop-types */
-import React from 'react'
-import { Spinner, Alert, Pagination, Table } from 'react-bootstrap'
-import { useQuery, gql, NetworkStatus } from '@apollo/client'
+import React, { useState } from 'react'
+import { Button, Spinner, Alert, Pagination, Table } from 'react-bootstrap'
+import { useQuery, useMutation, gql, NetworkStatus } from '@apollo/client'
+import { EmployeeModal } from './employee-modal'
+
+export const DEFAULT_EMPLOYEE = {
+  id: '',
+  name: '',
+  email: '',
+  dob: '',
+  phone: '',
+  picture_thumbnail: '',
+  department: '',
+  title: ''
+}
 
 export const GET_EMPLOYEES_QUERY = gql`
   query getEmployees($filter: FilterInput, $first: Int, $after: String, $last: Int, $before: String) {
@@ -27,16 +39,60 @@ export const GET_EMPLOYEES_QUERY = gql`
   }
 `
 
-export function EmployeeRow ({ employee: { name, email, department, title } }) {
+export const CREATE_EMPLOYEE_QUERY = gql`
+  mutation createEmployee($input: CreateEmployeeInput!) {
+    createEmployee(input: $input) {
+      id
+      name
+      email
+      dob
+      phone
+      picture_thumbnail
+      department
+      title
+    }
+  }
+`
+
+export const UPDATE_EMPLOYEE_QUERY = gql`
+  mutation updateEmployee($input: UpdateEmployeeInput!) {
+    updateEmployee(input: $input) {
+      id
+      name
+      email
+      dob
+      phone
+      picture_thumbnail
+      department
+      title
+    }
+  }
+`
+
+export const DELETE_EMPLOYEE_QUERY = gql`
+  mutation deleteEmployee($input: DeleteEmployeeInput!) {
+    deleteEmployee(input: $input) {
+      count
+    }
+  }
+`
+
+export function EmployeeRow ({ employee: { id, name, email, department, title }, employee, onDelete, onEdit }) {
   return <tr>
     <td>{name}</td>
     <td>{email}</td>
     <td>{department}</td>
     <td>{title}</td>
+    <td>
+      <Button variant="outline-primary" size="sm" onClick={() => onEdit(employee)} block>Edit</Button>
+      <Button variant="outline-danger" size="sm" onClick={() => onDelete(id)} block>Delete</Button>
+    </td>
   </tr>
 }
 
 export function EmployeeList ({ filter, pageSize }) {
+  const [showModal, setShowModal] = useState(false)
+  const [currentEmployee, setCurrentEmployee] = useState(DEFAULT_EMPLOYEE)
   const { loading, error, data, refetch, networkStatus } = useQuery(GET_EMPLOYEES_QUERY, {
     variables: {
       filter,
@@ -47,6 +103,9 @@ export function EmployeeList ({ filter, pageSize }) {
     },
     notifyOnNetworkStatusChange: true
   })
+  const [createEmployee, createResponse] = useMutation(CREATE_EMPLOYEE_QUERY)
+  const [updateEmployee, updateResponse] = useMutation(UPDATE_EMPLOYEE_QUERY)
+  const [deleteEmployee, deleteResponse] = useMutation(DELETE_EMPLOYEE_QUERY)
 
   if (loading || networkStatus === NetworkStatus.refetch) {
     return (
@@ -83,13 +142,72 @@ export function EmployeeList ({ filter, pageSize }) {
     })
   }
 
+  const onDelete = async (id) => {
+    await deleteEmployee({
+      variables: {
+        input: {
+          id
+        }
+      }
+    })
+    refetch()
+  }
+
+  const onEdit = (employee) => {
+    setCurrentEmployee(employee)
+    setShowModal(true)
+  }
+
+  const onCreate = () => {
+    setCurrentEmployee(DEFAULT_EMPLOYEE)
+    setShowModal(true)
+  }
+
+  const onModalClose = () => {
+    setShowModal(false)
+  }
+
+  const onModalSubmit = async (employee) => {
+    setShowModal(false)
+    if (employee.id === '') {
+      delete employee.id
+      await createEmployee({
+        variables: {
+          input: employee
+        }
+      })
+      refetch()
+    } else {
+      delete employee.__typename
+      await updateEmployee({
+        variables: {
+          input: employee
+        }
+      })
+      refetch()
+    }
+  }
+
   const totalCount = data.employees.totalCount
   const edgeCount = data.employees.edges.length
   return (
     <div>
       <h2>
-        Displaying {edgeCount} of {totalCount} employees
+        Displaying {edgeCount} of {totalCount} employees {' '}
+        <Button variant="primary" onClick={onCreate}>New Employee</Button>
       </h2>
+      {createResponse && createResponse.called && createResponse.data && createResponse.data.createEmployee &&
+        <Alert variant="success">
+          Created employee {createResponse.data.createEmployee.name} with id {createResponse.data.createEmployee.id}
+        </Alert>}
+      {updateResponse && updateResponse.called && updateResponse.data && updateResponse.data.updateEmployee &&
+        <Alert variant="success">
+          Updated employee {updateResponse.data.updateEmployee.name}
+        </Alert>}
+      {deleteResponse && deleteResponse.called && deleteResponse.data && deleteResponse.data.deleteEmployee &&
+        <Alert variant="success">
+          Deleted {deleteResponse.data.deleteEmployee.count} employee(s)
+        </Alert>}
       <Table striped bordered hover size="sm">
         <thead>
           <tr>
@@ -101,7 +219,7 @@ export function EmployeeList ({ filter, pageSize }) {
         </thead>
         <tbody>
           {data.employees.edges.map((edge) => (
-            <EmployeeRow key={edge.cursor} employee={edge.node} />
+            <EmployeeRow key={edge.cursor} employee={edge.node} onDelete={onDelete} onEdit={onEdit} />
           ))}
         </tbody>
       </Table>
@@ -109,6 +227,12 @@ export function EmployeeList ({ filter, pageSize }) {
         <Pagination.Prev onClick={fetchPreviousPage} />
         <Pagination.Next onClick={fetchNextPage} />
       </Pagination>
+      <EmployeeModal
+        employee={currentEmployee}
+        isVisible={showModal}
+        onSubmit={onModalSubmit}
+        onClose={onModalClose}
+      />
     </div>
   )
 }

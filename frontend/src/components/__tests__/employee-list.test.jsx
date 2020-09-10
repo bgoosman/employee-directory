@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { fireEvent, render, waitForElementToBeRemoved } from '@testing-library/react'
 import { MockedProvider } from '@apollo/client/testing'
-import { EmployeeList, GET_EMPLOYEES_QUERY } from '../employee-list'
+import { EmployeeList, DEFAULT_EMPLOYEE, GET_EMPLOYEES_QUERY, DELETE_EMPLOYEE_QUERY, UPDATE_EMPLOYEE_QUERY, CREATE_EMPLOYEE_QUERY } from '../employee-list'
 import { randomEmployees } from 'fixtures/random-employees'
 import { act } from 'react-dom/test-utils'
 
@@ -39,10 +39,69 @@ function makeMockGetEmployeesQuery (variables, isError, page) {
   }
 }
 
+function makeMockDeleteEmployeeQuery (variables) {
+  return {
+    request: {
+      query: DELETE_EMPLOYEE_QUERY,
+      variables
+    },
+    result: () => {
+      return {
+        data: {
+          deleteEmployee: {
+            count: 1
+          }
+        }
+      }
+    }
+  }
+}
+
+function makeMockCreateEmployeeQuery (employeeToCreate, createdEmployee) {
+  delete employeeToCreate.id
+  return {
+    request: {
+      query: CREATE_EMPLOYEE_QUERY,
+      variables: {
+        input: employeeToCreate
+      }
+    },
+    result: () => {
+      return {
+        data: {
+          createEmployee: createdEmployee
+        }
+      }
+    }
+  }
+}
+
+function makeMockUpdateEmployeeQuery (updatedEmployee) {
+  return {
+    request: {
+      query: UPDATE_EMPLOYEE_QUERY,
+      variables: {
+        input: updatedEmployee
+      }
+    },
+    result: () => {
+      return {
+        data: {
+          updateEmployee: updatedEmployee
+        }
+      }
+    }
+  }
+}
+
 function renderUsage ({
   filter = {},
   pageSize = PAGE_SIZE,
-  isError = false
+  isError = false,
+  idToDelete = '',
+  employeeToCreate = {},
+  createdEmployee = {},
+  updatedEmployee = {}
 } = {}) {
   const queryMocks = [
     makeMockGetEmployeesQuery(
@@ -77,7 +136,27 @@ function renderUsage ({
       },
       isError,
       NEXT_PAGE
-    )
+    ),
+    makeMockDeleteEmployeeQuery(
+      {
+        input: {
+          id: idToDelete
+        }
+      }
+    ),
+    makeMockGetEmployeesQuery(
+      {
+        filter,
+        first: pageSize,
+        after: undefined,
+        last: undefined,
+        before: undefined
+      },
+      isError,
+      CURRENT_PAGE
+    ),
+    makeMockCreateEmployeeQuery(employeeToCreate, createdEmployee),
+    makeMockUpdateEmployeeQuery(updatedEmployee)
   ]
   const utils = render(
     <MockedProvider mocks={queryMocks} addTypename={false}>
@@ -149,4 +228,93 @@ it('fetches the next page', async () => {
   NEXT_PAGE.forEach(employee => {
     expect(getByText(employee.name)).toBeDefined()
   })
+})
+
+it('deletes an employee and reloads the page', async () => {
+  const { getByText, getAllByText, waitForLoading } = renderUsage({
+    idToDelete: CURRENT_PAGE[0].id
+  })
+
+  await waitForLoading()
+
+  const deleteButtons = getAllByText('Delete')
+  expect(deleteButtons).toBeDefined()
+  await act(async () => {
+    fireEvent.click(deleteButtons[0])
+  })
+
+  expect(getByText('Deleted 1 employee(s)')).toBeDefined()
+})
+
+it('updates an employee and reloads the page', async () => {
+  const updatedEmployee = CURRENT_PAGE[0]
+  const { getByText, getAllByText, waitForLoading } = renderUsage({
+    updatedEmployee
+  })
+
+  await waitForLoading()
+
+  const updateButtons = getAllByText('Edit')
+  expect(updateButtons).toBeDefined()
+  await act(async () => {
+    fireEvent.click(updateButtons[0])
+  })
+
+  const submitButton = getByText('Save')
+  expect(submitButton).toBeDefined()
+  await act(async () => {
+    fireEvent.click(submitButton)
+  })
+
+  expect(getByText(`Updated employee ${updatedEmployee.name}`)).toBeDefined()
+})
+
+it('creates an employee and reloads the page', async () => {
+  const name = 'Antwerp'
+  const id = 'id'
+  const createdEmployee = Object.assign({}, { ...DEFAULT_EMPLOYEE, name, id })
+  const employeeToCreate = Object.assign({}, DEFAULT_EMPLOYEE)
+  const { getByText, waitForLoading } = renderUsage({
+    employeeToCreate,
+    createdEmployee
+  })
+
+  await waitForLoading()
+
+  const createButton = getByText('New Employee')
+  expect(createButton).toBeDefined()
+  await act(async () => {
+    fireEvent.click(createButton)
+  })
+
+  const submitButton = getByText('Save')
+  expect(submitButton).toBeDefined()
+  await act(async () => {
+    fireEvent.click(submitButton)
+  })
+
+  expect(getByText(`Created employee ${name} with id ${id}`)).toBeDefined()
+})
+
+it('does not crash if the modal is closed', async () => {
+  const name = 'Antwerp'
+  const id = 'id'
+  const createdEmployee = Object.assign({}, { ...DEFAULT_EMPLOYEE, name, id })
+  const employeeToCreate = Object.assign({}, DEFAULT_EMPLOYEE)
+  const { getByText, waitForLoading } = renderUsage({
+    employeeToCreate,
+    createdEmployee
+  })
+
+  await waitForLoading()
+
+  const createButton = getByText('New Employee')
+  expect(createButton).toBeDefined()
+  await act(async () => {
+    fireEvent.click(createButton)
+  })
+
+  const closeButton = getByText('Cancel')
+  expect(closeButton).toBeDefined()
+  fireEvent.click(closeButton)
 })

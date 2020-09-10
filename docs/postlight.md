@@ -597,21 +597,119 @@ Developer Diary
 1. Pagination
 
     While implementing pagination, I realized it isn't trivial to support random lookup with the cursor approach to pagination, so I took a simplified approach and just did next and previous.
-
     - [GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)
     - [Apollo Client - refetching](https://www.apollographql.com/docs/react/data/queries/#refetching)
     - [Apollo Client - testing error states](https://www.apollographql.com/docs/react/development-testing/testing/#testing-error-states)
 
 ## 2020-09-09
 
-1. Finished pagination tonight. Just next and previous buttons.
+1. Finished pagination tonight. Just next and previous buttons. Refreshing the page reverts to the first page.
 
+    - TODO: Save current page on browser state, so reloading doesn't revert to page one.
+    - TODO: Don't allow user to navigate past first and last page
     - [act() warning](https://github.com/testing-library/react-testing-library/issues/535#issuecomment-621992821)
 
-2. Filter by name, email, title, department
-
-    To be fast, we'll implement all of these as prefix searches. Let's make a filter sidebar.
+2. Filter by name, email, title, department. To be fast, we'll implement all of these as prefix searches. Let's make a filter sidebar.
 
     ![](employee_list_with_pagination.png)
-
     - [Simplifying controlled inputs with hooks](https://rangle.io/blog/simplifying-controlled-inputs-with-hooks/)
+
+3. Delete an employee.
+
+    - TODO: Instead of reloading the current page of employees, we could delete the employee in the local cache.
+
+4. Update / create an employee. 
+
+    - TODO: Instead of reloading the current page of employees, we could create / update the employee in the local cache.
+
+5. Final code coverage:
+
+    ```
+    ➜  frontend git:(master) ✗ npm test
+
+    > @ test /Users/admin/code/employee-directory/frontend
+    > jest
+
+    PASS  src/__tests__/index.test.jsx
+      ✓ renders App (26 ms)
+
+    PASS  src/components/__tests__/filters.test.jsx
+      ✓ sets default filter values (32 ms)
+      ✓ inputting text modifies the state and also calls the callback (21 ms)
+
+    PASS  src/components/__tests__/employee-modal.test.jsx
+      ✓ sets default form values (83 ms)
+      ✓ inputting text modifies the state (54 ms)
+
+    PASS  src/components/__tests__/employee-list.test.jsx
+      ✓ renders a loading spinner (70 ms)
+      ✓ renders a list of employees (177 ms)
+      ✓ renders an error (19 ms)
+      ✓ fetches the previous page (147 ms)
+      ✓ fetches the next page (138 ms)
+      ✓ deletes an employee and reloads the page (107 ms)
+      ✓ updates an employee and reloads the page (151 ms)
+      ✓ creates an employee and reloads the page (123 ms)
+      ✓ does not crash if the modal is closed (79 ms)
+
+    ----------------------|---------|----------|---------|---------|-------------------
+    File                  | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+    ----------------------|---------|----------|---------|---------|-------------------
+    All files             |     100 |      100 |     100 |     100 |
+    src                   |     100 |      100 |     100 |     100 |
+      App.jsx             |     100 |      100 |     100 |     100 |
+    src/components        |     100 |      100 |     100 |     100 |
+      employee-list.jsx   |     100 |      100 |     100 |     100 |
+      employee-modal.jsx  |     100 |      100 |     100 |     100 |
+      filters.jsx         |     100 |      100 |     100 |     100 |
+    src/fixtures          |     100 |      100 |     100 |     100 |
+      random-employees.js |     100 |      100 |     100 |     100 |
+    ----------------------|---------|----------|---------|---------|-------------------
+    Test Suites: 4 passed, 4 total
+    Tests:       14 passed, 14 total
+    Snapshots:   0 total
+    Time:        2.837 s, estimated 3 s
+    Ran all test suites.
+    ```
+
+    ```
+    ➜  backend git:(master) ✗ npm test
+
+    > backend@1.0.0 test /Users/admin/code/employee-directory/backend
+    > npx c8 mocha -r esm --recursive
+
+
+
+      getStringFilter
+        ✓ should return a valid prefix search sql
+
+      getEmployees
+        ✓ uses all the filters
+        ✓ applies a default limit
+        ✓ uses first after
+        ✓ uses last before
+        ✓ returns a page of employees
+
+      createEmployee
+        ✓ returns an employee with a unique id
+        ✓ uses all the input args
+
+      updateEmployee
+        ✓ returns the employee
+        ✓ updates all the input args except the primary key
+        ✓ throws an error if no update occurred
+
+      deleteEmployee
+        ✓ returns the count of employees deleted
+        ✓ uses the input id
+
+
+      13 passing (27ms)
+
+    ------------------|---------|----------|---------|---------|-------------------
+    File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+    ------------------|---------|----------|---------|---------|-------------------
+    All files         |     100 |      100 |     100 |     100 |
+    employee-crud.js  |     100 |      100 |     100 |     100 |
+    ------------------|---------|----------|---------|---------|-------------------
+    ```
